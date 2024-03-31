@@ -36,7 +36,7 @@ df_activities = df_activities[df_activities['Activity Type'].isin(included_activ
 
 # Set the date range
 start_date = '2024-01-01'
-end_date = '2024-02-29'
+end_date = '2024-03-31'
 
 # Filter df_activities
 df_activities = df_activities[(df_activities['Date'] >= start_date) & (df_activities['Date'] <= end_date)]
