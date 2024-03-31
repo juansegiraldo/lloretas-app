@@ -2,3 +2,4 @@ plotly
 pandas
 streamlit
 streamlit-aggrid
+openpxl
