@@ -1,3 +1,5 @@
 plotly
 pandas
+streamlit
 st-aggrid
+streamlit-aggrid
