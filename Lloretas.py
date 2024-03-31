@@ -189,6 +189,7 @@ st.title('Club de Lloretas')
 
 ## Table with the Total Points
 st.markdown("## Así vamos")
+df_total_points['Points'] = df_total_points['Points'].map(lambda x: '{:.1f}'.format(x))
 st.markdown(df_total_points.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
 # Define the color mapping for each "Participante"
@@ -250,15 +251,6 @@ st.plotly_chart(fig)
 # Sort the month order
 month_order = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
-# # Create the bar chart for df_pasos
-# df_pasos['Pasos_k'] = (df_pasos['Pasos'] / 1000).round(1)
-# df_pasos['Pts_Label'] = df_pasos['Points'].astype(str) + ' pts'
-# fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_pasos['Pts_Label'] + '<br>' + df_pasos['Pasos_k'].astype(str) + 'k')
-# fig_pasos.update_traces(textposition='auto')
-# fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='', height=400)
-# fig_pasos.update_yaxes(showticklabels=False, showgrid=False)
-# st.plotly_chart(fig_pasos)
-
 # Create the bar chart for df_pasos
 df_pasos['Pasos_k'] = (df_pasos['Pasos'] / 1000).round(1)
 df_pasos['Pts_Label'] = df_pasos['Points'].astype(str) + ' pts'
@@ -275,18 +267,21 @@ for participant in df_pasos['Participante'].unique():
     fig_pasos.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Pasos'], mode='lines', line=dict(color=participante_colors[participant], dash='dot', width=0.5), name=participant, showlegend=False))
 
 
-fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='', height=400)
+fig_pasos.update_layout(
+    xaxis_title='Mes',
+    yaxis_title='Km',
+    legend_title='',
+    height=400,
+    legend=dict(
+        orientation="h",  # Place legend horizontally
+        yanchor="top",
+        y=1.1,
+        xanchor="center",
+        x=0.5
+    )
+)
 fig_pasos.update_yaxes(showticklabels=False, showgrid=False)
 st.plotly_chart(fig_pasos)
-
-# # Create the bar chart for df_carreras
-# df_carreras['Carreras_km'] = (df_carreras['Km']).round(1)
-# df_carreras['Pts_Label_carreras'] = df_carreras['Points'].astype(str) + ' pts'
-# fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_carreras['Pts_Label_carreras'] + '<br>' + df_carreras['Carreras_km'].astype(str))
-# fig_carreras.update_traces(textposition='auto')
-# fig_carreras.update_layout(xaxis_title='Mes', yaxis_title='Km', legend_title='', height=400)
-# fig_carreras.update_yaxes(showticklabels=False, showgrid=False)
-# st.plotly_chart(fig_carreras)
 
 # Create the bar chart for df_carreras
 df_carreras['Carreras_km'] = (df_carreras['Km']).round(1)
@@ -302,7 +297,19 @@ for participant in df_carreras['Participante'].unique():
     participant_data = df_carreras[df_carreras['Participante'] == participant]
     fig_carreras.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Km'], mode='lines', line=dict(color=participante_colors[participant], dash='dot', width=0.5), name=participant, showlegend=False))
 
-fig_carreras.update_layout(xaxis_title='Mes', yaxis_title='Km', legend_title='', height=400)
+fig_carreras.update_layout(
+    xaxis_title='Mes',
+    yaxis_title='Km',
+    legend_title='',
+    height=400,
+    legend=dict(
+        orientation="h",  # Place legend horizontally
+        yanchor="top",
+        y=1.1,
+        xanchor="center",
+        x=0.5
+    )
+)
 fig_carreras.update_yaxes(showticklabels=False, showgrid=False)
 st.plotly_chart(fig_carreras)
 
@@ -313,6 +320,7 @@ column_order = ['Activity Type', 'Date', 'Distance', 'Avg Pace', 'Participante',
 df_longest_run_selected_columns = df_longest_run_selected_columns[column_order]
 df_longest_run_selected_columns['Date'] = pd.to_datetime(df_longest_run_selected_columns['Date']).dt.strftime('%B')
 df_longest_run_selected_columns['Distance'] = df_longest_run_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+df_longest_run_selected_columns['Points'] = df_longest_run_selected_columns['Points'].map(lambda x: '{:.0f}'.format(x))
 st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
 
@@ -320,4 +328,5 @@ st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), 
 st.markdown("# Todas las Actividades")
 df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
 df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
 st.markdown(df_activities_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
