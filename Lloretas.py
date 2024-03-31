@@ -3,6 +3,8 @@ from datetime import datetime
 import streamlit as st
 import plotly.express as px
 import plotly.colors as colors
+import plotly.graph_objects as go
+import numpy as np
 from st_aggrid import AgGrid
 
 # Load the data from the Excel file
@@ -248,18 +250,61 @@ st.plotly_chart(fig)
 # Sort the month order
 month_order = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
+# # Create the bar chart for df_pasos
+# df_pasos['Pasos_k'] = (df_pasos['Pasos'] / 1000).round(1)
+# df_pasos['Pts_Label'] = df_pasos['Points'].astype(str) + ' pts'
+# fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_pasos['Pts_Label'] + '<br>' + df_pasos['Pasos_k'].astype(str) + 'k')
+# fig_pasos.update_traces(textposition='auto')
+# fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='', height=400)
+# fig_pasos.update_yaxes(showticklabels=False, showgrid=False)
+# st.plotly_chart(fig_pasos)
+
 # Create the bar chart for df_pasos
-fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text='Pasos', text_auto=True)
-fig_pasos.update_traces(texttemplate='%{text:.0f}')
-fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='Participante', height=400)
+df_pasos['Pasos_k'] = (df_pasos['Pasos'] / 1000).round(1)
+df_pasos['Pts_Label'] = df_pasos['Points'].astype(str) + ' pts'
+fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_pasos['Pts_Label'] + '<br>' + df_pasos['Pasos_k'].astype(str) + 'k')
+
+# Update bar trace text position
+for trace in fig_pasos.data[:len(df_pasos['Participante'].unique())]:
+    trace.textposition = 'auto'
+
+# Add trend lines
+for participant in df_pasos['Participante'].unique():
+    participant_data = df_pasos[df_pasos['Participante'] == participant]
+    # fig_pasos.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Pasos'], mode='lines', line=dict(color=participante_colors[participant], dash='dot'), name=participant))
+    fig_pasos.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Pasos'], mode='lines', line=dict(color=participante_colors[participant], dash='dot', width=0.5), name=participant, showlegend=False))
+
+
+fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='', height=400)
+fig_pasos.update_yaxes(showticklabels=False, showgrid=False)
 st.plotly_chart(fig_pasos)
 
-# Create the bar chart for df_carreras
-fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text='Km', text_auto=True)
-fig_carreras.update_traces(texttemplate='%{text:.2f}')
-fig_carreras.update_layout(xaxis_title='Mes', yaxis_title='Km', legend_title='Participante', height=400)
-st.plotly_chart(fig_carreras)
+# # Create the bar chart for df_carreras
+# df_carreras['Carreras_km'] = (df_carreras['Km']).round(1)
+# df_carreras['Pts_Label_carreras'] = df_carreras['Points'].astype(str) + ' pts'
+# fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_carreras['Pts_Label_carreras'] + '<br>' + df_carreras['Carreras_km'].astype(str))
+# fig_carreras.update_traces(textposition='auto')
+# fig_carreras.update_layout(xaxis_title='Mes', yaxis_title='Km', legend_title='', height=400)
+# fig_carreras.update_yaxes(showticklabels=False, showgrid=False)
+# st.plotly_chart(fig_carreras)
 
+# Create the bar chart for df_carreras
+df_carreras['Carreras_km'] = (df_carreras['Km']).round(1)
+df_carreras['Pts_Label_carreras'] = df_carreras['Points'].astype(str) + ' pts'
+fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_carreras['Pts_Label_carreras'] + '<br>' + df_carreras['Carreras_km'].astype(str))
+
+# Update bar trace text position
+for trace in fig_carreras.data[:len(df_carreras['Participante'].unique())]:
+    trace.textposition = 'auto'
+
+# Add trend lines
+for participant in df_carreras['Participante'].unique():
+    participant_data = df_carreras[df_carreras['Participante'] == participant]
+    fig_carreras.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Km'], mode='lines', line=dict(color=participante_colors[participant], dash='dot', width=0.5), name=participant, showlegend=False))
+
+fig_carreras.update_layout(xaxis_title='Mes', yaxis_title='Km', legend_title='', height=400)
+fig_carreras.update_yaxes(showticklabels=False, showgrid=False)
+st.plotly_chart(fig_carreras)
 
 ## Table with the Longest runs
 st.markdown("# Carreras más largas por mes")
