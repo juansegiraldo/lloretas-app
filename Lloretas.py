@@ -6,7 +6,7 @@ import plotly.colors as colors
 from st_aggrid import AgGrid
 
 # Load the data from the Excel file
-xls = pd.ExcelFile('LloretasSource.xlsx')
+xls = pd.ExcelFile('D:\\Users\\juan.giraldo\\Desktop\\CodingCamp\\more\\LloretasSource.xlsx')
 
 # Read the 'Pasos' and 'Carreras' sheets
 df_pasos = pd.read_excel(xls, 'Pasos')
@@ -185,18 +185,9 @@ writer._save()
 ## Streamlit app
 st.title('Club de Lloretas')
 
-participant_colors = {
-    "FrancoVelez": "red",
-    "Juan Sebastian Giraldo": "green",
-    "Federico": "blue",
-    "SantiUribem": "orange"
-}
-
-colorscale = [participant_colors[participant] for participant in df_activities_selected_columns['Participante'].unique()]
-
 ## Table with the Total Points
 st.markdown("## Así vamos")
-st.table(df_total_points)
+st.markdown(df_total_points.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
 # Define the color mapping for each "Participante"
 participante_colors = {
@@ -209,17 +200,46 @@ participante_colors = {
 # Line Graph of accumulated Kms
 # Sort the DataFrame by Date and Participante
 df_activities_selected_columns = df_activities_selected_columns.sort_values(['Participante', 'Date'])
+
 # Create a new DataFrame with accumulated distances
 accumulated_distances = df_activities_selected_columns.groupby(['Participante', 'Date'])['Distance'].sum().reset_index()
 accumulated_distances = accumulated_distances.sort_values(['Participante', 'Date'])
 accumulated_distances['Accumulated Distance'] = accumulated_distances.groupby('Participante')['Distance'].cumsum()
+
 # Create the line chart
 fig = px.line(accumulated_distances, x='Date', y='Accumulated Distance', color='Participante', title='Accumulated Progress for Runners', color_discrete_map=participante_colors)
+
+# Add text labels in the middle of each line
+for participante, group in accumulated_distances.groupby('Participante'):
+    middle_index = len(group) // 2
+    middle_row = group.iloc[middle_index]
+    offset = 20
+    fig.add_annotation(
+        x=middle_row['Date'],
+        y=middle_row['Accumulated Distance'] + offset,
+        text=participante,
+        showarrow=False,
+        font=dict(color=participante_colors[participante])
+    )
+
+# Add text labels to the end of each line with offset
+for participante, group in accumulated_distances.groupby('Participante'):
+    last_row = group.iloc[-1]
+    offset = max(accumulated_distances['Accumulated Distance']) * 0.05  # Adjust the offset as needed
+    fig.add_annotation(
+        x=last_row['Date'],
+        y=last_row['Accumulated Distance'] + offset,
+        text=f"{last_row['Accumulated Distance']:.2f} km",
+        showarrow=False,
+        font=dict(color=participante_colors[participante])
+    )
+
 # Customize the layout
 fig.update_layout(
     xaxis_title='Date',
-    yaxis_title='Accumulated Distance (km)',
-    legend_title='Participante'
+    yaxis_title='Total Distance (km)',
+    yaxis=dict(showgrid=False),  # Remove y-axis grid lines
+    showlegend=False
 )
 
 # Display the plot in Streamlit
@@ -230,33 +250,29 @@ month_order = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', '
 
 # Create the bar chart for df_pasos
 fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text='Pasos', text_auto=True)
-# Customize the text template
 fig_pasos.update_traces(texttemplate='%{text:.0f}')
+fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='Participante', height=400)
+st.plotly_chart(fig_pasos)
 
 # Create the bar chart for df_carreras
 fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text='Km', text_auto=True)
-# Customize the text template
 fig_carreras.update_traces(texttemplate='%{text:.2f}')
-
-# Set the layout for both charts
-fig_pasos.update_layout(xaxis_title='Mes', yaxis_title='Pasos', legend_title='Participante', height=400)
 fig_carreras.update_layout(xaxis_title='Mes', yaxis_title='Km', legend_title='Participante', height=400)
-
-# Display the charts
-st.plotly_chart(fig_pasos)
 st.plotly_chart(fig_carreras)
 
-## Table with the Todas las carreras
-st.markdown("Carreras más largas por mes")
+
+## Table with the Longest runs
+st.markdown("# Carreras más largas por mes")
 df_longest_run_selected_columns = df_longest_run_selected_columns.reset_index(drop=True)
 column_order = ['Activity Type', 'Date', 'Distance', 'Avg Pace', 'Participante', 'Points']
 df_longest_run_selected_columns = df_longest_run_selected_columns[column_order]
 df_longest_run_selected_columns['Date'] = pd.to_datetime(df_longest_run_selected_columns['Date']).dt.strftime('%B')
-df_longest_run_selected_columns['Distance'] = df_longest_run_selected_columns['Distance'].round(2)
-st.table(df_longest_run_selected_columns.style.format({'Distance': '{:.2f}'}))
+df_longest_run_selected_columns['Distance'] = df_longest_run_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
 
 ## Table with the Todas las carreras
 st.markdown("# Todas las Actividades")
-st.table(df_activities_selected_columns)
-
+df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
+df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+st.markdown(df_activities_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
