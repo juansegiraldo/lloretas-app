@@ -323,37 +323,19 @@ df_longest_run_selected_columns['Distance'] = df_longest_run_selected_columns['D
 df_longest_run_selected_columns['Points'] = df_longest_run_selected_columns['Points'].map(lambda x: '{:.0f}'.format(x))
 st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
-
-# ## Table with the Todas las carreras
-# st.markdown("# Todas las Actividades")
-# df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
-# df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
-# df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
-# st.markdown(df_activities_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
-
 ## Table with the Todas las carreras
 st.markdown("# Todas las Actividades")
-
-# Convert 'Date' column to datetime format
 df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
-
-# Format 'Distance' column to 2 decimal places
 df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
-
-# Format 'Points' column to 1 decimal place
 df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
 
 # Apply conditional formatting to 'Points' column
 def highlight_positive(val):
     if float(val) > 0.0:
-        return 'background-color: yellow'
+        return 'background-color: green'
     else:
         return ''
 
 df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].apply(lambda x: f'<span style="{highlight_positive(x)}">{x}</span>')
-
-# Convert DataFrame to HTML without escaping
 html = df_activities_selected_columns.to_html(escape=False, index=False)
-
-# Display the HTML in Streamlit
 st.markdown(html, unsafe_allow_html=True)
