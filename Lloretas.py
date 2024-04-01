@@ -332,7 +332,7 @@ df_activities_selected_columns['Points'] = df_activities_selected_columns['Point
 # Apply conditional formatting to 'Points' column
 def highlight_positive(val):
     if float(val) > 0.0:
-        return 'background-color: green'
+        return 'background-color: lime'
     else:
         return ''
 
