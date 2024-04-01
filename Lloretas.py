@@ -8,7 +8,7 @@ import numpy as np
 from st_aggrid import AgGrid
 
 # Load the data from the Excel file
-xls = pd.ExcelFile('LloretasSource.xlsx')
+xls = pd.ExcelFile('D:\\Users\\juan.giraldo\\Desktop\\CodingCamp\\more\\LloretasSource.xlsx')
 
 # Read the 'Pasos' and 'Carreras' sheets
 df_pasos = pd.read_excel(xls, 'Pasos')
@@ -254,7 +254,7 @@ month_order = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', '
 # Create the bar chart for df_pasos
 df_pasos['Pasos_k'] = (df_pasos['Pasos'] / 1000).round(1)
 df_pasos['Pts_Label'] = df_pasos['Points'].astype(str) + ' pts'
-fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_pasos['Pts_Label'] + '<br>' + df_pasos['Pasos_k'].astype(str) + 'k')
+fig_pasos = px.bar(df_pasos, x='Mes', y='Pasos', color='Participante', title='Pasos por Mes', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_pasos['Pts_Label'] + '<br>' + df_pasos['Pasos_k'].astype(str) + 'k')
 
 # Update bar trace text position
 for trace in fig_pasos.data[:len(df_pasos['Participante'].unique())]:
@@ -286,7 +286,7 @@ st.plotly_chart(fig_pasos)
 # Create the bar chart for df_carreras
 df_carreras['Carreras_km'] = (df_carreras['Km']).round(1)
 df_carreras['Pts_Label_carreras'] = df_carreras['Points'].astype(str) + ' pts'
-fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes y Participante', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_carreras['Pts_Label_carreras'] + '<br>' + df_carreras['Carreras_km'].astype(str))
+fig_carreras = px.bar(df_carreras, x='Mes', y='Km', color='Participante', title='Kms por Mes', category_orders={'Mes': month_order}, barmode='group', color_discrete_map=participante_colors, text=df_carreras['Pts_Label_carreras'] + '<br>' + df_carreras['Carreras_km'].astype(str))
 
 # Update bar trace text position
 for trace in fig_carreras.data[:len(df_carreras['Participante'].unique())]:
@@ -299,7 +299,7 @@ for participant in df_carreras['Participante'].unique():
 
 fig_carreras.update_layout(
     xaxis_title='Mes',
-    yaxis_title='Km',
+    yaxis_title='Kms',
     legend_title='',
     height=400,
     legend=dict(
@@ -324,9 +324,36 @@ df_longest_run_selected_columns['Points'] = df_longest_run_selected_columns['Poi
 st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
 
+# ## Table with the Todas las carreras
+# st.markdown("# Todas las Actividades")
+# df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
+# df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+# df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
+# st.markdown(df_activities_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
+
 ## Table with the Todas las carreras
 st.markdown("# Todas las Actividades")
+
+# Convert 'Date' column to datetime format
 df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
+
+# Format 'Distance' column to 2 decimal places
 df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+
+# Format 'Points' column to 1 decimal place
 df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
-st.markdown(df_activities_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
+
+# Apply conditional formatting to 'Points' column
+def highlight_positive(val):
+    if float(val) > 0.0:
+        return 'background-color: yellow'
+    else:
+        return ''
+
+df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].apply(lambda x: f'<span style="{highlight_positive(x)}">{x}</span>')
+
+# Convert DataFrame to HTML without escaping
+html = df_activities_selected_columns.to_html(escape=False, index=False)
+
+# Display the HTML in Streamlit
+st.markdown(html, unsafe_allow_html=True)
