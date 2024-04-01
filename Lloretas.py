@@ -269,7 +269,7 @@ for participant in df_pasos['Participante'].unique():
 
 fig_pasos.update_layout(
     xaxis_title='Mes',
-    yaxis_title='Km',
+    yaxis_title='Pasos',
     legend_title='',
     height=400,
     legend=dict(
