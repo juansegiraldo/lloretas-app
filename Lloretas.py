@@ -190,7 +190,7 @@ writer._save()
 st.title('Club de Lloretas')
 
 ## Table with the Total Points
-st.markdown("## Así vamos")
+st.markdown("### Así vamos")
 df_total_points['Points'] = df_total_points['Points'].map(lambda x: '{:.1f}'.format(x))
 st.markdown(df_total_points.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
@@ -314,7 +314,9 @@ fig_carreras.update_yaxes(showticklabels=False, showgrid=False)
 st.plotly_chart(fig_carreras)
 
 ## Table with the Longest runs
-st.markdown("# Carreras más largas por mes")
+st.markdown(" ")
+st.markdown("### Carreras más largas por mes")
+st.markdown(" ")
 df_longest_run_selected_columns = df_longest_run_selected_columns.reset_index(drop=True)
 column_order = ['Activity Type', 'Date', 'Distance', 'Avg Pace', 'Participante', 'Points']
 df_longest_run_selected_columns = df_longest_run_selected_columns[column_order]
@@ -325,7 +327,10 @@ st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), 
 
 
 ## Table with Long runs
-st.markdown("# Carreras > 21.095 km")
+st.markdown(" ")
+st.markdown(" ")
+st.markdown("### Carreras > 21.095 km")
+st.markdown(" ")
 
 df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
 df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
