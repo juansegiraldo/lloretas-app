@@ -6,9 +6,11 @@ import plotly.colors as colors
 import plotly.graph_objects as go
 import numpy as np
 from st_aggrid import AgGrid
+import base64
+from io import BytesIO
 
 # Load the data from the Excel file
-xls = pd.ExcelFile('LloretasSource.xlsx')
+xls = pd.ExcelFile('D:\\Users\\juan.giraldo\\Desktop\\CodingCamp\\more\\LloretasSource.xlsx')
 
 # Read the 'Pasos' and 'Carreras' sheets
 df_pasos = pd.read_excel(xls, 'Pasos')
@@ -263,9 +265,7 @@ for trace in fig_pasos.data[:len(df_pasos['Participante'].unique())]:
 # Add trend lines
 for participant in df_pasos['Participante'].unique():
     participant_data = df_pasos[df_pasos['Participante'] == participant]
-    # fig_pasos.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Pasos'], mode='lines', line=dict(color=participante_colors[participant], dash='dot'), name=participant))
     fig_pasos.add_trace(go.Scatter(x=participant_data['Mes'], y=participant_data['Pasos'], mode='lines', line=dict(color=participante_colors[participant], dash='dot', width=0.5), name=participant, showlegend=False))
-
 
 fig_pasos.update_layout(
     xaxis_title='Mes',
@@ -323,19 +323,51 @@ df_longest_run_selected_columns['Distance'] = df_longest_run_selected_columns['D
 df_longest_run_selected_columns['Points'] = df_longest_run_selected_columns['Points'].map(lambda x: '{:.0f}'.format(x))
 st.markdown(df_longest_run_selected_columns.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
-## Table with the Todas las carreras
-st.markdown("# Todas las Actividades")
+
+## Table with Long runs
+st.markdown("# Carreras > 21.095 km")
+
 df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
 df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
 df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
 
-# Apply conditional formatting to 'Points' column
-def highlight_positive(val):
-    if float(val) > 0.0:
-        return 'background-color: lime'
-    else:
-        return ''
+# Filter the table to show only rows where 'Points' is greater than 0
+df_activities_filtered = df_activities_selected_columns[df_activities_selected_columns['Points'].astype(float) > 0]
 
-df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].apply(lambda x: f'<span style="{highlight_positive(x)}">{x}</span>')
-html = df_activities_selected_columns.to_html(escape=False, index=False)
-st.markdown(html, unsafe_allow_html=True)
+st.markdown(df_activities_filtered.style.hide(axis="index").to_html(), unsafe_allow_html=True)
+
+
+def get_all_activities_download_link(df):
+    """Generates a link allowing the data in a given panda dataframe to be downloaded
+    in: dataframe
+    out: href string
+    """
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name='Sheet1', index=False)
+    writer.close()
+    output.seek(0)
+    xlsx_data = output.getvalue()
+    b64 = base64.b64encode(xlsx_data).decode()
+    href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="All_Activities.xlsx">Download All Activities</a>'
+    return href
+
+# this will display a download link for the above dataframe
+st.markdown(get_all_activities_download_link(df_activities_selected_columns), unsafe_allow_html=True)
+
+# ## Table with the Todas las carreras
+# st.markdown("# Todas las Actividades")
+# df_activities_selected_columns['Date'] = pd.to_datetime(df_activities_selected_columns['Date']).dt.strftime('%d-%b-%Y')
+# df_activities_selected_columns['Distance'] = df_activities_selected_columns['Distance'].map(lambda x: '{:.2f}'.format(x))
+# df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].map(lambda x: '{:.1f}'.format(x))
+
+# # Apply conditional formatting to 'Points' column
+# def highlight_positive(val):
+#     if float(val) > 0.0:
+#         return 'background-color: lime'
+#     else:
+#         return ''
+
+# df_activities_selected_columns['Points'] = df_activities_selected_columns['Points'].apply(lambda x: f'<span style="{highlight_positive(x)}">{x}</span>')
+# html = df_activities_selected_columns.to_html(escape=False, index=False)
+# st.markdown(html, unsafe_allow_html=True)
