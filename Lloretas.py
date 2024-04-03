@@ -10,7 +10,7 @@ import base64
 from io import BytesIO
 
 # Load the data from the Excel file
-xls = pd.ExcelFile('D:\\Users\\juan.giraldo\\Desktop\\CodingCamp\\more\\LloretasSource.xlsx')
+xls = pd.ExcelFile('LloretasSource.xlsx')
 
 # Read the 'Pasos' and 'Carreras' sheets
 df_pasos = pd.read_excel(xls, 'Pasos')
