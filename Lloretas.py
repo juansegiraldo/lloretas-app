@@ -187,6 +187,9 @@ writer._save()
 # # Vamos a graficar las carreras
 
 ## Streamlit app
+# Set page configuration
+st.set_page_config(layout="wide")
+
 st.title('Club de Lloretas')
 
 ## Table with the Total Points
